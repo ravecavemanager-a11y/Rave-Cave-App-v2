@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+  <title>RAVE CAVE</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <h1 id="event-title">
+        RAVE CAVE
+      </h1>
+      <p
+        id="event-date"
+        class="event-date"
+      ></p>
+      <p
+        id="event-time"
+        class="event-time"
+      ></p>
+    </div>
+  </header>
+  <main>
+    <!-- NOW PLAYING -->
+    <section
+      id="now-playing-section"
+      class="section"
+    >
+      <h2 class="section-title">
+        NOW PLAYING
+      </h2>
+      <button
+        id="now-playing-card"
+        class="now-playing-card"
+        type="button"
+      >
+        <div id="now-playing-image-container">
+          <div class="no-image">
+            NO IMAGE
+          </div>
+        </div>
+        <div class="now-playing-content">
+          <div
+            id="now-playing-name"
+            class="now-playing-name"
+          ></div>
+          <div
+            id="now-playing-time"
+            class="now-playing-time"
+          ></div>
+        </div>
+      </button>
+    </section>
+    <!-- TIMETABLE -->
+    <section class="section">
+      <h2 class="section-title">
+        TIMETABLE
+      </h2>
+      <div id="timetable-list">
+        <!-- app.js generated -->
+      </div>
+    </section>
+    <!-- LINEUP -->
+    <section class="section">
+      <h2 class="section-title">
+        LINEUP
+      </h2>
+      <div
+        id="dj-list"
+        class="dj-grid"
+      >
+        <!-- app.js generated -->
+      </div>
+    </section>
+    <!-- ERROR -->
+    <div
+      id="error-message"
+      class="error-message hidden"
+    >
+      Unable to load event data.
+    </div>
+  </main>
+  <!-- BOTTOM SHEET -->
+  <div
+    id="bottom-sheet"
+    class="bottom-sheet hidden"
+  >
+    <div
+      id="sheet-overlay"
+      class="sheet-overlay"
+    ></div>
+    <div class="sheet-content">
+      <button
+        id="modal-close"
+        class="modal-close"
+        type="button"
+        aria-label="Close"
+      >
+        ×
+      </button>
+      <div
+        id="modal-img"
+        class="modal-image"
+      >
+        <div class="no-image">
+          NO IMAGE
+        </div>
+      </div>
+      <h3
+        id="modal-name"
+        class="modal-name"
+      ></h3>
+      <div
+        id="modal-sns"
+        class="modal-sns"
+      >
+        <!-- app.js generated -->
+      </div>
+    </div>
+  </div>
+  <!-- TOAST -->
+  <div
+    id="toast"
+    class="toast"
+    aria-live="polite"
+  ></div>
+  <!-- LOADING -->
+  <div
+    id="loading-msg"
+    class="loading"
+  >
+    Loading...
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
