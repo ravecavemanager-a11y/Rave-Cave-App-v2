@@ -304,6 +304,18 @@ body {
   font-weight: 700;
 }
 
+.empty-message {
+  grid-column: 1 / -1;
+
+  color: var(--text-sub);
+
+  text-align: center;
+
+  padding: 20px;
+
+  font-size: .9rem;
+}
+
 /* ==================================
    BOTTOM SHEET
 ================================== */
