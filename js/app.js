@@ -62,6 +62,7 @@ async function fetchData() {
     renderEventInfo();
     renderTimetable();
     renderLineup();
+    renderAllDjs();
     updateNowPlaying();
 
     showLoading(false);
@@ -391,6 +392,59 @@ function renderTimetable() {
   });
 }
 
+function createDjCard(djId, dj) {
+
+  const card =
+    document.createElement(
+      "button"
+    );
+
+  card.className =
+    "dj-card";
+
+  card.type =
+    "button";
+
+  const image =
+    document.createElement(
+      "div"
+    );
+
+  image.className =
+    "dj-image";
+
+  renderImage(
+    image,
+    dj?.image_url
+  );
+
+  const name =
+    document.createElement(
+      "div"
+    );
+
+  name.className =
+    "dj-name";
+
+  name.textContent =
+    dj?.name ||
+    djId;
+
+  card.appendChild(image);
+  card.appendChild(name);
+
+  card.addEventListener(
+    "click",
+    () => {
+      openBottomSheet(
+        djId
+      );
+    }
+  );
+
+  return card;
+}
+
 function renderLineup() {
 
   const container =
@@ -422,55 +476,49 @@ function renderLineup() {
         item.dj_id
       ];
 
-    const card =
-      document.createElement(
-        "button"
-      );
+    container.appendChild(
+      createDjCard(item.dj_id, dj)
+    );
+  });
+}
 
-    card.className =
-      "dj-card";
+function renderAllDjs() {
 
-    card.type =
-      "button";
-
-    const image =
-      document.createElement(
-        "div"
-      );
-
-    image.className =
-      "dj-image";
-
-    renderImage(
-      image,
-      dj?.image_url
+  const container =
+    document.getElementById(
+      "all-dj-list"
     );
 
-    const name =
-      document.createElement(
-        "div"
-      );
+  container.innerHTML = "";
 
-    name.className =
-      "dj-name";
-
-    name.textContent =
-      dj?.name ||
-      item.dj_id;
-
-    card.appendChild(image);
-    card.appendChild(name);
-
-    card.addEventListener(
-      "click",
-      () => {
-        openBottomSheet(
-          item.dj_id
-        );
-      }
+  // 当日のタイムテーブルに載っているDJ IDの集合
+  const todaysDjIds =
+    new Set(
+      STATE.timetable.map(
+        item => item.dj_id
+      )
     );
 
-    container.appendChild(card);
+  const others =
+    Object.keys(STATE.djMap)
+      .filter(djId => !todaysDjIds.has(djId));
+
+  if (others.length === 0) {
+
+    container.innerHTML =
+      '<p class="empty-message">All RAVE CAVE DJs are playing today!</p>';
+
+    return;
+  }
+
+  others.forEach(djId => {
+
+    const dj =
+      STATE.djMap[djId];
+
+    container.appendChild(
+      createDjCard(djId, dj)
+    );
   });
 }
 
