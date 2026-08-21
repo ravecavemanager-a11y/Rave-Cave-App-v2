@@ -97,6 +97,25 @@ body {
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.official-insta {
+  display: inline-block;
+
+  margin-top: 8px;
+
+  color: #000;
+  background: var(--accent);
+
+  font-weight: 800;
+  font-size: .95rem;
+
+  padding: 6px 16px;
+
+  border-radius: 999px;
+
+  text-decoration: none;
 }
 
 .event-date {
