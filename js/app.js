@@ -135,19 +135,54 @@ function timeToMinutes(timeString) {
   return total;
 }
 
-function getCurrentMinutes() {
+// "yyyy-MM-dd" と "HH:mm" を組み合わせて
+// 実際の日時（Dateオブジェクト）を作る
+function buildDateTime(dateString, timeString) {
 
-  const now = new Date();
+  const [year, month, day] =
+    dateString
+      .split("-")
+      .map(Number);
 
-  let total =
-    now.getHours() * 60 +
-    now.getMinutes();
+  const [hour, minute] =
+    timeString
+      .split(":")
+      .map(Number);
 
-  if (now.getHours() < 12) {
-    total += 1440;
+  return new Date(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute,
+    0,
+    0
+  );
+}
+
+// イベント開始日時を基準に、深夜またぎ（例: 01:00）の
+// 時刻を「翌日」として正しく解決する
+function resolveDateTimeAfter(
+  baseDateString,
+  timeString,
+  notBeforeDate
+) {
+
+  let dt =
+    buildDateTime(
+      baseDateString,
+      timeString
+    );
+
+  if (dt < notBeforeDate) {
+
+    dt = new Date(
+      dt.getTime() +
+      24 * 60 * 60 * 1000
+    );
   }
 
-  return total;
+  return dt;
 }
 
 function clearTimetableHighlight() {
@@ -229,20 +264,34 @@ function updateNowPlaying() {
     return;
   }
 
-  const now =
-    getCurrentMinutes();
-
-  const start =
-    timeToMinutes(
+  const eventStart =
+    buildDateTime(
+      STATE.event.date,
       STATE.event.start_time
     );
 
-  const end =
-    timeToMinutes(
+  let eventEnd =
+    buildDateTime(
+      STATE.event.date,
       STATE.event.end_time
     );
 
-  if (now < start) {
+  // 終了時刻が開始時刻以前 = 深夜またぎイベント
+  // （例: 22:00開始 → 翌日04:00終了）
+  if (eventEnd <= eventStart) {
+
+    eventEnd = new Date(
+      eventEnd.getTime() +
+      24 * 60 * 60 * 1000
+    );
+  }
+
+  const now = new Date();
+
+  const ONE_HOUR_MS =
+    60 * 60 * 1000;
+
+  if (now < eventStart) {
 
     imageContainer.innerHTML =
       '<div class="no-image">NO IMAGE</div>';
@@ -250,7 +299,7 @@ function updateNowPlaying() {
     // 開始1時間前を切ったら EVENT STARTS SOON、
     // それより前は STAY TUNED...
     name.textContent =
-      (start - now) <= 60
+      (eventStart - now) <= ONE_HOUR_MS
         ? "EVENT STARTS SOON"
         : "STAY TUNED...";
 
@@ -259,14 +308,14 @@ function updateNowPlaying() {
     return;
   }
 
-  if (now >= end) {
+  if (now >= eventEnd) {
 
     imageContainer.innerHTML =
       '<div class="no-image">NO IMAGE</div>';
 
     // 終了から1時間以内は EVENT ENDED のみ、
     // それを過ぎたら EVENT ENDED + Thank you for coming!
-    if ((now - end) < 60) {
+    if ((now - eventEnd) < ONE_HOUR_MS) {
 
       name.textContent =
         "EVENT ENDED";
@@ -287,14 +336,26 @@ function updateNowPlaying() {
   for (const item of STATE.timetable) {
 
     const itemStart =
-      timeToMinutes(
-        item.start_time
+      resolveDateTimeAfter(
+        STATE.event.date,
+        item.start_time,
+        eventStart
       );
 
-    const itemEnd =
-      timeToMinutes(
-        item.end_time
+    let itemEnd =
+      resolveDateTimeAfter(
+        STATE.event.date,
+        item.end_time,
+        eventStart
       );
+
+    if (itemEnd <= itemStart) {
+
+      itemEnd = new Date(
+        itemEnd.getTime() +
+        24 * 60 * 60 * 1000
+      );
+    }
 
     if (
       now >= itemStart &&
