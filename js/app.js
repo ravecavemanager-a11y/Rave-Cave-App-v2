@@ -52,12 +52,49 @@ async function fetchData() {
       STATE.djMap[dj.dj_id] = dj;
     });
 
-    STATE.timetable.sort((a, b) => {
-      return (
-        timeToMinutes(a.start_time) -
-        timeToMinutes(b.start_time)
-      );
-    });
+    // イベントの開始日時を基準に、タイムテーブルを
+    // 実際の日時順（深夜またぎも正しく考慮）で並び替える
+    if (
+      STATE.event &&
+      STATE.event.date &&
+      STATE.event.start_time
+    ) {
+
+      const eventStartForSort =
+        buildDateTime(
+          STATE.event.date,
+          STATE.event.start_time
+        );
+
+      STATE.timetable.sort((a, b) => {
+
+        const aStart =
+          resolveDateTimeAfter(
+            STATE.event.date,
+            a.start_time,
+            eventStartForSort
+          );
+
+        const bStart =
+          resolveDateTimeAfter(
+            STATE.event.date,
+            b.start_time,
+            eventStartForSort
+          );
+
+        return aStart - bStart;
+      });
+
+    } else {
+
+      // アクティブなイベントが無い場合の保険（基準日時が無いため簡易判定）
+      STATE.timetable.sort((a, b) => {
+        return (
+          timeToMinutes(a.start_time) -
+          timeToMinutes(b.start_time)
+        );
+      });
+    }
 
     renderEventInfo();
     renderTimetable();
