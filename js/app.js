@@ -93,7 +93,7 @@ function renderEventInfo() {
     document.getElementById(
       "event-date"
     ).textContent =
-      "NEXT EVENT COMING SOON";
+      "STAY TUNED...";
 
     document.getElementById(
       "event-time"
@@ -105,7 +105,7 @@ function renderEventInfo() {
   document.getElementById(
     "event-title"
   ).textContent =
-    STATE.event.title;
+    STATE.event.title.toUpperCase();
 
   document.getElementById(
     "event-date"
@@ -206,7 +206,23 @@ function updateNowPlaying() {
       '<div class="no-image">NO IMAGE</div>';
 
     name.textContent =
-      "NEXT EVENT COMING SOON";
+      "STAY TUNED...";
+
+    time.textContent = "";
+
+    return;
+  }
+
+  // スプレッドシート側で「過去イベント」として
+  // 手動チェックされている場合は、時間に関係なく
+  // 常にEVENT ENDED表示にする
+  if (STATE.event.is_ended) {
+
+    imageContainer.innerHTML =
+      '<div class="no-image">NO IMAGE</div>';
+
+    name.innerHTML =
+      "EVENT ENDED<br>Thank you for coming!";
 
     time.textContent = "";
 
@@ -231,8 +247,12 @@ function updateNowPlaying() {
     imageContainer.innerHTML =
       '<div class="no-image">NO IMAGE</div>';
 
+    // 開始1時間前を切ったら EVENT STARTS SOON、
+    // それより前は STAY TUNED...
     name.textContent =
-      "EVENT STARTS SOON";
+      (start - now) <= 60
+        ? "EVENT STARTS SOON"
+        : "STAY TUNED...";
 
     time.textContent = "";
 
@@ -244,8 +264,18 @@ function updateNowPlaying() {
     imageContainer.innerHTML =
       '<div class="no-image">NO IMAGE</div>';
 
-    name.textContent =
-      "EVENT ENDED";
+    // 終了から1時間以内は EVENT ENDED のみ、
+    // それを過ぎたら EVENT ENDED + Thank you for coming!
+    if ((now - end) < 60) {
+
+      name.textContent =
+        "EVENT ENDED";
+
+    } else {
+
+      name.innerHTML =
+        "EVENT ENDED<br>Thank you for coming!";
+    }
 
     time.textContent = "";
 
