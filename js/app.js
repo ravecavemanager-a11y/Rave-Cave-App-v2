@@ -248,22 +248,6 @@ function updateNowPlaying() {
     return;
   }
 
-  // スプレッドシート側で「過去イベント」として
-  // 手動チェックされている場合は、時間に関係なく
-  // 常にEVENT ENDED表示にする
-  if (STATE.event.is_ended) {
-
-    imageContainer.innerHTML =
-      '<div class="no-image">NO IMAGE</div>';
-
-    name.innerHTML =
-      "EVENT ENDED<br>Thank you for coming!";
-
-    time.textContent = "";
-
-    return;
-  }
-
   const eventStart =
     buildDateTime(
       STATE.event.date,
@@ -313,17 +297,17 @@ function updateNowPlaying() {
     imageContainer.innerHTML =
       '<div class="no-image">NO IMAGE</div>';
 
-    // 終了から1時間以内は EVENT ENDED のみ、
-    // それを過ぎたら EVENT ENDED + Thank you for coming!
+    // 終了直後〜1時間以内は EVENT ENDED + Thank you for coming!、
+    // それを過ぎたら次のイベントを待つ STAY TUNED...
     if ((now - eventEnd) < ONE_HOUR_MS) {
-
-      name.textContent =
-        "EVENT ENDED";
-
-    } else {
 
       name.innerHTML =
         "EVENT ENDED<br>Thank you for coming!";
+
+    } else {
+
+      name.textContent =
+        "STAY TUNED...";
     }
 
     time.textContent = "";
