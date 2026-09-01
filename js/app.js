@@ -424,9 +424,14 @@ function updateNowPlaying() {
     );
   };
 
+  const currentIndex =
+    STATE.timetable.indexOf(
+      currentSlot
+    );
+
   const currentRow =
     document.querySelector(
-      `[data-start="${currentSlot.start_time}"]`
+      `[data-index="${currentIndex}"]`
     );
 
   if (currentRow) {
@@ -456,7 +461,15 @@ function renderTimetable() {
 
   container.innerHTML = "";
 
-  STATE.timetable.forEach(item => {
+  if (STATE.timetable.length === 0) {
+
+    container.innerHTML =
+      '<p class="empty-message">Timetable will be announced soon.</p>';
+
+    return;
+  }
+
+  STATE.timetable.forEach((item, index) => {
 
     const dj =
       STATE.djMap[
@@ -474,8 +487,8 @@ function renderTimetable() {
     button.type =
       "button";
 
-    button.dataset.start =
-      item.start_time;
+    button.dataset.index =
+      index;
 
     button.innerHTML = `
       <span class="tt-range">
@@ -565,6 +578,14 @@ function renderLineup() {
     );
 
   container.innerHTML = "";
+
+  if (STATE.timetable.length === 0) {
+
+    container.innerHTML =
+      '<p class="empty-message">Lineup will be announced soon.</p>';
+
+    return;
+  }
 
   const rendered =
     new Set();
@@ -716,11 +737,18 @@ function renderSNSCards(dj) {
     }
   ];
 
-  snsList.forEach(sns => {
+  const availableSns =
+    snsList.filter(sns => sns.id);
 
-    if (!sns.id) {
-      return;
-    }
+  if (availableSns.length === 0) {
+
+    container.innerHTML =
+      '<p class="empty-message">No social links yet.</p>';
+
+    return;
+  }
+
+  availableSns.forEach(sns => {
 
     const card =
       document.createElement(
@@ -846,8 +874,8 @@ function showToast(message) {
 function cleanId(id) {
 
   return String(id || "")
-    .replace(/^@+/, "")
-    .trim();
+    .trim()
+    .replace(/^@+/, "");
 }
 
 function renderImage(
