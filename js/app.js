@@ -222,6 +222,85 @@ function resolveDateTimeAfter(
   return dt;
 }
 
+// dj_idを分解する。"Kaleido,Riku" のようにカンマ区切りで
+// 複数人入力されている場合（B2B等）は配列で返す。
+// 通常の単独DJの場合は要素数1の配列になる。
+function parseDjIds(djIdString) {
+
+  return String(djIdString || "")
+    .split(",")
+    .map(id => id.trim())
+    .filter(Boolean);
+}
+
+// dj_idから表示用の名前を作る。
+// 複数人の場合は "Aさん × Bさん" の形式で連結する。
+function getComboDisplayName(djIdString) {
+
+  const ids = parseDjIds(djIdString);
+
+  if (ids.length === 0) {
+    return djIdString;
+  }
+
+  return ids
+    .map(id => STATE.djMap[id]?.name || id)
+    .join(" × ");
+}
+
+// NOW PLAYINGカードの画像欄に、複数DJの画像を
+// 横並びで表示する（1人の場合は通常のrenderImageと同じ見た目）
+function renderComboImage(container, djIdString) {
+
+  const ids = parseDjIds(djIdString);
+
+  if (ids.length <= 1) {
+
+    const dj =
+      STATE.djMap[djIdString];
+
+    renderImage(
+      container,
+      dj?.image_url
+    );
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const row =
+    document.createElement(
+      "div"
+    );
+
+  row.className =
+    "combo-image-row";
+
+  ids.forEach(id => {
+
+    const cell =
+      document.createElement(
+        "div"
+      );
+
+    cell.className =
+      "combo-image-cell";
+
+    const dj =
+      STATE.djMap[id];
+
+    renderImage(
+      cell,
+      dj?.image_url
+    );
+
+    row.appendChild(cell);
+  });
+
+  container.appendChild(row);
+}
+
 function clearTimetableHighlight() {
   document
     .querySelectorAll(".tt-item")
@@ -401,19 +480,15 @@ function updateNowPlaying() {
     return;
   }
 
-  const dj =
-    STATE.djMap[
-      currentSlot.dj_id
-    ];
-
-  renderImage(
+  renderComboImage(
     imageContainer,
-    dj?.image_url
+    currentSlot.dj_id
   );
 
   name.textContent =
-    dj?.name ||
-    currentSlot.dj_id;
+    getComboDisplayName(
+      currentSlot.dj_id
+    );
 
   time.textContent =
     `${currentSlot.start_time} - ${currentSlot.end_time}`;
@@ -471,11 +546,6 @@ function renderTimetable() {
 
   STATE.timetable.forEach((item, index) => {
 
-    const dj =
-      STATE.djMap[
-        item.dj_id
-      ];
-
     const button =
       document.createElement(
         "button"
@@ -496,7 +566,7 @@ function renderTimetable() {
       </span>
 
       <span class="tt-name">
-        ${dj?.name || item.dj_id}
+        ${getComboDisplayName(item.dj_id)}
       </span>
 
       <span class="tt-now"></span>
@@ -592,26 +662,29 @@ function renderLineup() {
 
   STATE.timetable.forEach(item => {
 
-    if (
-      rendered.has(
-        item.dj_id
-      )
-    ) {
-      return;
-    }
+    parseDjIds(item.dj_id).forEach(djId => {
 
-    rendered.add(
-      item.dj_id
-    );
+      if (
+        rendered.has(
+          djId
+        )
+      ) {
+        return;
+      }
 
-    const dj =
-      STATE.djMap[
-        item.dj_id
-      ];
+      rendered.add(
+        djId
+      );
 
-    container.appendChild(
-      createDjCard(item.dj_id, dj)
-    );
+      const dj =
+        STATE.djMap[
+          djId
+        ];
+
+      container.appendChild(
+        createDjCard(djId, dj)
+      );
+    });
   });
 }
 
@@ -625,12 +698,16 @@ function renderAllDjs() {
   container.innerHTML = "";
 
   // 当日のタイムテーブルに載っているDJ IDの集合
+  // （B2B等のコンボは中身の個々のdj_idまで展開する）
   const todaysDjIds =
-    new Set(
-      STATE.timetable.map(
-        item => item.dj_id
-      )
-    );
+    new Set();
+
+  STATE.timetable.forEach(item => {
+
+    parseDjIds(item.dj_id).forEach(djId => {
+      todaysDjIds.add(djId);
+    });
+  });
 
   const others =
     Object.keys(STATE.djMap)
@@ -655,12 +732,16 @@ function renderAllDjs() {
   });
 }
 
-function openBottomSheet(djId) {
+function openBottomSheet(djIdString) {
 
-  const dj =
-    STATE.djMap[djId];
+  const ids =
+    parseDjIds(djIdString);
 
-  if (!dj) {
+  // 誰も djs マスタに存在しなければ何もしない
+  const validIds =
+    ids.filter(id => STATE.djMap[id]);
+
+  if (validIds.length === 0) {
     return;
   }
 
@@ -677,7 +758,14 @@ function openBottomSheet(djId) {
       "modal-name"
     )
     .textContent =
-    dj.name;
+    getComboDisplayName(djIdString);
+
+  renderComboImage(
+    document.getElementById(
+      "modal-img"
+    ),
+    djIdString
+  );
 
   const sns =
     document.getElementById(
@@ -686,14 +774,72 @@ function openBottomSheet(djId) {
 
   sns.innerHTML = "";
 
-  renderImage(
-    document.getElementById(
-      "modal-img"
-    ),
-    dj.image_url
-  );
+  if (validIds.length === 1) {
 
-  renderSNSCards(dj);
+    // ソロDJの場合は今まで通りのシンプルな表示
+    const hasAny =
+      appendDjSnsCards(
+        sns,
+        STATE.djMap[validIds[0]]
+      );
+
+    if (!hasAny) {
+
+      sns.innerHTML =
+        '<p class="empty-message">No social links yet.</p>';
+    }
+
+    return;
+  }
+
+  // B2B等、複数人の場合はメンバーごとにセクションを分けて表示
+  validIds.forEach(id => {
+
+    const dj =
+      STATE.djMap[id];
+
+    const block =
+      document.createElement(
+        "div"
+      );
+
+    block.className =
+      "member-block";
+
+    const heading =
+      document.createElement(
+        "div"
+      );
+
+    heading.className =
+      "member-heading";
+
+    heading.textContent =
+      dj.name || id;
+
+    block.appendChild(heading);
+
+    sns.appendChild(block);
+
+    const hasAny =
+      appendDjSnsCards(block, dj);
+
+    if (!hasAny) {
+
+      const empty =
+        document.createElement(
+          "p"
+        );
+
+      empty.className =
+        "empty-message";
+
+      empty.textContent =
+        "No social links yet.";
+
+      block.appendChild(empty);
+    }
+  });
 }
 
 function closeBottomSheet() {
@@ -707,12 +853,10 @@ function closeBottomSheet() {
     );
 }
 
-function renderSNSCards(dj) {
-
-  const container =
-    document.getElementById(
-      "modal-sns"
-    );
+// 指定したコンテナに、1人分のDJのSNSカードを追加する。
+// コンテナのクリアは呼び出し側の責任（ソロ用・コンボ用の両方から再利用するため）。
+// 戻り値: 1件でもリンクを追加できたか（true/false）
+function appendDjSnsCards(container, dj) {
 
   const snsList = [
     {
@@ -751,14 +895,6 @@ function renderSNSCards(dj) {
 
   const availableSns =
     snsList.filter(sns => sns.id);
-
-  if (availableSns.length === 0) {
-
-    container.innerHTML =
-      '<p class="empty-message">No social links yet.</p>';
-
-    return;
-  }
 
   availableSns.forEach(sns => {
 
@@ -826,6 +962,8 @@ function renderSNSCards(dj) {
 
     container.appendChild(card);
   });
+
+  return availableSns.length > 0;
 }
 
 function copyText(text) {
