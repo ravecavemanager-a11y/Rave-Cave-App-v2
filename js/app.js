@@ -718,22 +718,34 @@ function renderSNSCards(dj) {
     {
       name: "Instagram",
       id: dj.instagram_id,
-      url: `https://instagram.com/${cleanId(dj.instagram_id)}`
+      url: `https://instagram.com/${cleanId(dj.instagram_id)}`,
+      isDirectUrl: false
     },
     {
       name: "TikTok",
       id: dj.tiktok_id,
-      url: `https://tiktok.com/@${cleanId(dj.tiktok_id)}`
+      url: `https://tiktok.com/@${cleanId(dj.tiktok_id)}`,
+      isDirectUrl: false
     },
     {
       name: "X",
       id: dj.x_id,
-      url: `https://x.com/${cleanId(dj.x_id)}`
+      url: `https://x.com/${cleanId(dj.x_id)}`,
+      isDirectUrl: false
     },
     {
       name: "SoundCloud",
       id: dj.soundcloud_id,
-      url: `https://soundcloud.com/${cleanId(dj.soundcloud_id)}`
+      url: `https://soundcloud.com/${cleanId(dj.soundcloud_id)}`,
+      isDirectUrl: false
+    },
+    {
+      // others列はID断片ではなく完全なURLがそのまま入っている
+      // （YouTube、Spotify、公式サイト、Linktreeなど自由なリンク）
+      name: "Link",
+      id: dj.others,
+      url: dj.others,
+      isDirectUrl: true
     }
   ];
 
@@ -758,6 +770,13 @@ function renderSNSCards(dj) {
     card.className =
       "sns-card";
 
+    // 直URL(others)は生のIDではなく、
+    // 見やすい案内文を表示する
+    const displayText =
+      sns.isDirectUrl
+        ? "Tap OPEN to visit"
+        : sns.id;
+
     card.innerHTML = `
       <div class="sns-title">
         ${sns.name}
@@ -766,7 +785,7 @@ function renderSNSCards(dj) {
       <div class="sns-id-row">
 
         <span class="sns-id">
-          ${sns.id}
+          ${displayText}
         </span>
 
         <button
@@ -793,7 +812,15 @@ function renderSNSCards(dj) {
       .addEventListener(
         "click",
         () => {
-          copyText(`@${cleanId(sns.id)}`);
+
+          // 直URL(others)はそのままコピー、
+          // SNSのIDは@付きでコピー
+          const textToCopy =
+            sns.isDirectUrl
+              ? sns.id
+              : `@${cleanId(sns.id)}`;
+
+          copyText(textToCopy);
         }
       );
 
