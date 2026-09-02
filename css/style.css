@@ -1,18 +1,20 @@
 :root {
-  --bg: #0b0d11;
-  --surface: #151922;
-  --surface-hover: #1d2330;
-  --border: #2b3242;
+  --bg: #0a0512;
+  --surface: #170f28;
+  --surface-hover: #241a3d;
+  --border: #3d2a5c;
 
   --text: #ffffff;
-  --text-sub: #9ea7b8;
+  --text-sub: #b3a3d1;
 
-  --accent: #7dd3fc;
+  --accent: #c65bf0;
+  --accent-secondary: #6be8c4;
+  --on-accent: #1a0b2e;
 
   --radius: 16px;
 
   --shadow:
-    0 10px 30px rgba(0,0,0,.35);
+    0 10px 30px rgba(0,0,0,.5);
 
   --max-width: 640px;
 }
@@ -86,27 +88,68 @@ body {
 ================================== */
 
 .header {
-  padding: 20px 0 24px;
+  padding: 28px 0 24px;
 }
 
 .header-inner {
   text-align: center;
 }
 
+.site-logo {
+  width: 96px;
+  height: 96px;
+
+  margin: 0 auto 14px;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 0 0 2px var(--border),
+    0 8px 24px rgba(198, 91, 240, .35);
+}
+
 #event-title {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: .08em;
+  font-family: "Orbitron", sans-serif;
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: .1em;
   text-transform: uppercase;
+
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    #ff8fd8 45%,
+    var(--accent-secondary) 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  text-shadow:
+    0 0 30px rgba(198, 91, 240, .35);
+}
+
+.insta-cta {
+  margin-top: 14px;
+
+  color: var(--accent-secondary);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .05em;
 }
 
 .official-insta {
   display: inline-block;
 
-  margin-top: 8px;
+  margin-top: 6px;
 
-  color: #000;
-  background: var(--accent);
+  color: var(--on-accent);
+  background: linear-gradient(
+    120deg,
+    var(--accent),
+    #ff8fd8
+  );
 
   font-weight: 800;
   font-size: .95rem;
@@ -119,7 +162,7 @@ body {
 }
 
 .event-date {
-  margin-top: 6px;
+  margin-top: 10px;
   color: var(--accent);
   font-size: .95rem;
 }
@@ -452,7 +495,7 @@ body {
 
   background: var(--accent);
 
-  color: #000;
+  color: var(--on-accent);
 
   padding: 8px 12px;
 
@@ -470,7 +513,7 @@ body {
 
   text-decoration: none;
 
-  color: #000;
+  color: var(--on-accent);
 
   background: var(--accent);
 
@@ -494,7 +537,7 @@ body {
   transform: translateX(-50%);
 
   background: #fff;
-  color: #000;
+  color: var(--on-accent);
 
   border-radius: 999px;
 
