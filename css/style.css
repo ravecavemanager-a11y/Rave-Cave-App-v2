@@ -96,10 +96,8 @@ body {
 }
 
 .site-logo {
-  width: calc(100vw - 20px);
-  height: calc(100vw - 20px);
-
-  max-width: calc(var(--max-width) - 20px);
+  width: clamp(200px, 58vw, 260px);
+  height: clamp(200px, 58vw, 260px);
 
   margin: 0 auto 14px;
 
