@@ -96,16 +96,18 @@ body {
 }
 
 .site-logo {
-  width: 96px;
-  height: 96px;
+  width: calc(100vw - 20px);
+  height: calc(100vw - 20px);
+
+  max-width: calc(var(--max-width) - 20px);
 
   margin: 0 auto 14px;
 
-  border-radius: 20px;
+  border-radius: 32px;
 
   box-shadow:
     0 0 0 2px var(--border),
-    0 8px 24px rgba(198, 91, 240, .35);
+    0 10px 32px rgba(198, 91, 240, .4);
 }
 
 #event-title {
