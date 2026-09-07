@@ -562,11 +562,11 @@ function renderTimetable() {
 
     button.innerHTML = `
       <span class="tt-range">
-        ${item.start_time} - ${item.end_time}
+        ${escapeHtml(item.start_time)} - ${escapeHtml(item.end_time)}
       </span>
 
       <span class="tt-name">
-        ${getComboDisplayName(item.dj_id)}
+        ${escapeHtml(getComboDisplayName(item.dj_id))}
       </span>
 
       <span class="tt-now"></span>
@@ -913,15 +913,18 @@ function appendDjSnsCards(container, dj) {
         ? "Tap OPEN to visit"
         : sns.id;
 
+    const safeUrl =
+      sanitizeUrl(sns.url);
+
     card.innerHTML = `
       <div class="sns-title">
-        ${sns.name}
+        ${escapeHtml(sns.name)}
       </div>
 
       <div class="sns-id-row">
 
         <span class="sns-id">
-          ${displayText}
+          ${escapeHtml(displayText)}
         </span>
 
         <button
@@ -934,12 +937,12 @@ function appendDjSnsCards(container, dj) {
       </div>
 
       <a
-        href="${sns.url}"
+        href="${safeUrl}"
         class="open-btn"
         target="_blank"
         rel="noopener noreferrer"
       >
-        OPEN ${sns.name.toUpperCase()}
+        OPEN ${escapeHtml(sns.name.toUpperCase())}
       </a>
     `;
 
@@ -1041,6 +1044,36 @@ function cleanId(id) {
   return String(id || "")
     .trim()
     .replace(/^@+/, "");
+}
+
+// innerHTML に差し込む前に、HTMLとして解釈されうる文字を無害化する。
+// フォーム経由で入力される値（SNS ID・その他リンク等）は
+// 悪意ある文字列が含まれる可能性があるため、
+// 表示直前に必ずこの関数を通す。
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    String(text || "");
+
+  return div.innerHTML;
+}
+
+// href属性に渡すURLが http:// または https:// で
+// 始まっていることを確認する。
+// javascript: 等の危険なスキームを無害なリンクに置き換える。
+function sanitizeUrl(url) {
+
+  const trimmed =
+    String(url || "").trim();
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return "#";
 }
 
 function renderImage(
