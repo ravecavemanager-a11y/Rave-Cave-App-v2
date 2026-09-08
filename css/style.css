@@ -245,11 +245,18 @@ body {
 ================================== */
 
 #now-playing-image-container img,
-.modal-image img,
 .dj-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* モーダルのアー写だけは、横長・縦長どちらの画像が来ても
+   上下左右が見切れないよう contain で全体を収める */
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* ==================================
@@ -436,13 +443,17 @@ body {
 .modal-image {
   margin-top: 20px;
 
-  height: 220px;
+  height: 260px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   border-radius: 16px;
 
   overflow: hidden;
 
-  background: #11151d;
+  background: var(--surface);
 }
 
 .modal-name {
